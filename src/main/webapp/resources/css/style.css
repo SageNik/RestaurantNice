@@ -1,0 +1,120 @@
+header {align-content: center; text-align: center; height: 120px}
+#block-header {background-color: darksalmon; height: 120px}
+.info-block {float: left; text-align: center; height: 800px; width: 150px; background-color: #cde5ef; border: medium #9eb9c2}
+.in-right-block {float: right; text-align: center; height: 800px; margin-top: -20px; width: 350px; background-color: #cde5ef; border: medium #9eb9c2}
+.in-content{text-align: center; align-content: center}
+.content{float: none; text-align: center; padding-top: 20px}
+.login {position: relative;
+    margin: 0 auto;
+    padding: 10px 10px 10px ;
+    width: 250px;
+    background: white;
+    border: solid thin darksalmon;
+    border-radius: 5px;  }
+.submit {text-align: right; margin-right: 15px}
+.button {
+    padding: 0 18px;
+    height: 29px;
+    font-size: 14px;
+    font-weight: bold;
+    color: darksalmon;
+    background: #cde5ef;
+    border: 1px solid;
+    border-color: #b4ccce #b3c0c8 #9eb9c2;
+    border-radius: 12px;
+    outline: 0}
+.login-text-field{
+    margin: 5px;
+    padding: 0 10px;
+    width: 220px;
+    height: 34px;
+    color: darksalmon;
+    background: white;
+    border: 1px solid darksalmon;
+    border-radius: 2px;
+    outline: 5px solid #eff4f7;
+    -moz-outline-radius: 3px;}
+
+p.login-help {float: left;
+    margin: 5px 15px;
+    font-size: 14px;}
+
+.errorLogin {font-weight: bold;color: red; font-size: 12px; margin: 0}
+.logout {font-weight: bold;color: blue; font-size: 12px; text-align: left; margin: 0 20px}
+.regSelect {margin: 5px;
+    padding: 0 10px;
+    width: 220px;
+    height: 34px;
+    color: darksalmon;
+    background: white;
+    border: 1px solid darksalmon;
+    border-radius: 2px;
+    outline: 5px solid #eff4f7;
+    -moz-outline-radius: 3px;}
+.order-table {text-align: center; border: 2px solid darksalmon; margin: 0 auto; border-collapse: collapse}
+.td-table {text-align: center; border: 1px solid darksalmon;}
+.orders-td{ text-align: center; border: 1px solid darksalmon; width: 80px}
+h2 {color: darksalmon}
+.field-dish-amount {margin: 4px;
+    text-align: center;
+    width: 25px;
+    height: 34px;
+    color: black;
+    background: white;
+    border: 1px solid darksalmon;
+    border-radius: 2px;
+    outline: 5px solid #eff4f7;
+    -moz-outline-radius: 3px;}
+.total-order-label {text-align: right; font-weight: bold; color: darksalmon}
+.total-order-sum {text-align: center; font-weight: bold; color: green; border: 1px solid black;}
+.new-order-table {text-align: center; margin: 0 auto; border-collapse: collapse;  color: darksalmon;}
+.td-new-order-table {text-align: center; border: 1px solid black;}
+.in-button { padding: 0 12px;
+    height: 25px;
+    font-size: 12px;
+    font-weight: bold;
+    color: darksalmon;
+    background: white;
+    border: 1px solid;
+    border-color: darksalmon;
+    border-radius: 10px;
+    outline: 0}
+.in-submit{padding: 0 12px;
+    height: 29px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #cde5ef;
+    background: darksalmon;
+    border: 2px solid;
+    border-color: white;
+    border-radius: 12px;
+    outline: 0}
+.dish-form-text-field{
+    margin: 5px;
+    padding: 0 10px;
+    width: 400px;
+    height: 34px;
+    color: darksalmon;
+    background: white;
+    border: 1px solid darksalmon;
+    border-radius: 2px;
+    outline: 5px solid #eff4f7;
+    -moz-outline-radius: 3px;}
+.dish-form-text-area-field{
+    margin: 5px;
+    padding: 0 10px;
+    width: 400px;
+    height: 100px;
+    color: darksalmon;
+    background: white;
+    border: 1px solid darksalmon;
+    border-radius: 2px;
+    outline: 5px solid #eff4f7;
+    -moz-outline-radius: 3px;}
+.dish-form {position: relative;
+    margin: 0 auto;
+    padding: 10px 10px 10px ;
+    width: 450px;
+    background: white;
+    border: solid thin darksalmon;
+    border-radius: 5px;  }
