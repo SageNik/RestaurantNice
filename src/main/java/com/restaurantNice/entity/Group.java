@@ -13,7 +13,7 @@ public class Group {
     private String name;
     private String description;
     private List<User> users;
-    private List<Order> orders;
+    private List<GroupOrder> groupOrders;
 
     public Group(Long id, Long owner_id, String name, String description) {
         this.id = id;
@@ -21,7 +21,7 @@ public class Group {
         this.name = name;
         this.description = description;
         this.users = new ArrayList<>();
-        this.orders = new ArrayList<>();
+        this.groupOrders = new ArrayList<>();
     }
 
     public Group(){}
@@ -66,12 +66,12 @@ public class Group {
         this.users = users;
     }
 
-    public List<Order> getOrders() {
-        return orders;
+    public List<GroupOrder> getGroupOrders() {
+        return groupOrders;
     }
 
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
+    public void setGroupOrders(List<GroupOrder> groupOrders) {
+        this.groupOrders = groupOrders;
     }
 
     @Override
@@ -86,7 +86,7 @@ public class Group {
         if (name != null ? !name.equals(group.name) : group.name != null) return false;
         if (description != null ? !description.equals(group.description) : group.description != null) return false;
         if (users != null ? !users.equals(group.users) : group.users != null) return false;
-        return orders != null ? orders.equals(group.orders) : group.orders == null;
+        return groupOrders != null ? groupOrders.equals(group.groupOrders) : group.groupOrders == null;
     }
 
     @Override
@@ -96,7 +96,7 @@ public class Group {
         result = 31 * result + (name != null ? name.hashCode() : 0);
         result = 31 * result + (description != null ? description.hashCode() : 0);
         result = 31 * result + (users != null ? users.hashCode() : 0);
-        result = 31 * result + (orders != null ? orders.hashCode() : 0);
+        result = 31 * result + (groupOrders != null ? groupOrders.hashCode() : 0);
         return result;
     }
 
@@ -108,7 +108,7 @@ public class Group {
                 ", name='" + name + '\'' +
                 ", description='" + description + '\'' +
                 ", users=" + users +
-                ", orders=" + orders +
+                ", orders=" + groupOrders +
                 '}';
     }
 }

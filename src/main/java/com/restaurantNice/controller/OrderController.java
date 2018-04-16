@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-import static com.restaurantNice.Constants.CURRENT_ORDER_ID;
-import static com.restaurantNice.Constants.CURRENT_SESSION_USER;
-import static com.restaurantNice.Constants.CURRENT_TEMP_NEW_ORDER_ENTRIES;
+import static com.restaurantNice.Constants.*;
 
 /**
  * Created by Ник on 13.04.2018.
@@ -59,14 +59,17 @@ public class OrderController {
     }
 
     @RequestMapping(value = "newOrder", method = RequestMethod.GET)
-    public String newOrder(Model model, HttpSession session) {
+    public String newOrder(@RequestParam(value = "groupOrderId", required = false) Long groupOrderId, Model model, HttpSession session) {
         User currentUser = (User) session.getAttribute(CURRENT_SESSION_USER);
         if (currentUser != null) {
             List<Dish> dishes = dishService.getAllByType(DishType.FOR_MENU);
             List<DishCategory> dishCategories = dishCategoryService.getAllCategory();
             session.setAttribute(CURRENT_TEMP_NEW_ORDER_ENTRIES, new ArrayList<Dish>());
             session.removeAttribute(CURRENT_ORDER_ID);
-
+if(groupOrderId != null){
+             session.setAttribute(CURRENT_GROUP_ORDER_ID,groupOrderId);
+            model.addAttribute("groupOrderId", groupOrderId);
+}
             model.addAttribute("dishes", dishes);
             model.addAttribute("dishCategories", dishCategories);
             model.addAttribute("orderDishes", session.getAttribute(CURRENT_TEMP_NEW_ORDER_ENTRIES));
@@ -88,7 +91,7 @@ public class OrderController {
                 List<Dish> currentOrderDishes = dishService.addDishToOrder(orderDishes, dishId, amount);
                 session.setAttribute(CURRENT_TEMP_NEW_ORDER_ENTRIES, currentOrderDishes);
 
-                addOrderAttributes(model, currentOrderDishes);
+                addOrderAttributes(model, currentOrderDishes, (Long)session.getAttribute(CURRENT_GROUP_ORDER_ID));
                 return "parts/order-content";
             } else {
                 LOGGER.info("ERROR: not correct params: dishId=" + dishId + " or amount=" + amount);
@@ -100,9 +103,10 @@ public class OrderController {
         }
     }
 
-    private void addOrderAttributes(Model model, List<Dish> currentOrderDishes) {
+    private void addOrderAttributes(Model model, List<Dish> currentOrderDishes, Long groupOrderId) {
         double total = calculateTotal(currentOrderDishes);
         model.addAttribute("total", total);
+        model.addAttribute("groupOrderId", groupOrderId);
         model.addAttribute("orderDishes", currentOrderDishes);
     }
 
@@ -123,7 +127,7 @@ public class OrderController {
                 List<Dish> currentOrderDishes = dishService.delDishFromOrder(orderDishes, dishId);
                 session.setAttribute(CURRENT_TEMP_NEW_ORDER_ENTRIES, currentOrderDishes);
 
-                addOrderAttributes(model, currentOrderDishes);
+                addOrderAttributes(model, currentOrderDishes, (Long)session.getAttribute(CURRENT_GROUP_ORDER_ID));
                 return "parts/order-content";
             } else {
                 LOGGER.info("ERROR: not correct params: dishId=" + dishId);
@@ -136,22 +140,37 @@ public class OrderController {
     }
 
     @RequestMapping(value = "saveOrder", method = RequestMethod.POST)
-    public String saveOrder(HttpSession session) {
+    public String saveOrder(@RequestParam(value = "groupOrderId",required = false)Long groupOrderId, Model model, HttpSession session) {
 
         User currentUser = (User) session.getAttribute(CURRENT_SESSION_USER);
         if (currentUser != null) {
             List<Dish> orderDishes = (List<Dish>) session.getAttribute(CURRENT_TEMP_NEW_ORDER_ENTRIES);
             Long orderId = (Long) session.getAttribute(CURRENT_ORDER_ID);
 
-            if (orderService.saveOrUpdateOrder(currentUser, orderDishes, orderId)) {
-                session.removeAttribute(CURRENT_TEMP_NEW_ORDER_ENTRIES);
-                return "redirect: orders";
-            } else return null;
+            if(groupOrderId == null) {
+                if (orderService.saveOrUpdateOrder(currentUser, orderDishes, orderId)) {
+                    session.removeAttribute(CURRENT_TEMP_NEW_ORDER_ENTRIES);
+                    return "redirect: orders";
+                } else return null;
+            }else{
+                  orderId = orderService.saveOrUpdateOrderForGroupOrder(currentUser,orderDishes,orderId,groupOrderId);
+                if(orderId != null) {
+                    return toGroupOrders(groupOrderId, model, session,orderId);
+                }else return null;
+            }
         }else {
             LOGGER.info("ERROR : The session have not current user");
             return null;
         }
 
+    }
+
+    private String toGroupOrders(Long groupOrderId, Model model, HttpSession session, Long orderId) {
+        session.removeAttribute(CURRENT_TEMP_NEW_ORDER_ENTRIES);
+        session.removeAttribute(CURRENT_GROUP_ORDER_ID);
+        model.addAttribute("orderId", orderId);
+        model.addAttribute("groupOrderId",groupOrderId);
+        return "redirect: showGroupOrder";
     }
 
     @RequestMapping(value = "saveAndSendOrder", method = RequestMethod.POST)
@@ -210,10 +229,16 @@ public class OrderController {
     }
 
     @RequestMapping(value = "deleteOrder", method = RequestMethod.POST)
-    public String deleteOrder(@RequestParam("orderId") Long orderId, Model model) {
+    public String deleteOrder(@RequestParam("orderId") Long orderId,Model model, HttpSession session,
+                              @RequestParam(value = "groupOrderId", required = false)Long groupOrderId) {
 
         if (orderId != null) {
-            if (orderService.deleteOrderById(orderId)) return "redirect: orders";
+            if (orderService.deleteOrderById(orderId)) {
+                if(groupOrderId == null) return "redirect: orders";
+                else {
+                    return toGroupOrders(groupOrderId,model,session,null);
+                }
+            }
             else {
                 LOGGER.info("ERROR: order with orderId=" + orderId + " hasn't been deleted");
                 return null;
@@ -225,7 +250,8 @@ public class OrderController {
     }
 
     @RequestMapping(value = "editOrder", method = RequestMethod.POST)
-    public String editOrder(@RequestParam("orderId") Long orderId, HttpSession session, Model model) {
+    public String editOrder(@RequestParam("orderId") Long orderId,
+                            @RequestParam(value = "groupOrderId", required = false)Long groupOrderId, HttpSession session, Model model) {
         User currentUser = (User) session.getAttribute(CURRENT_SESSION_USER);
         if (currentUser != null) {
             Order currentOrder = orderService.getOrderById(orderId);
@@ -234,7 +260,9 @@ public class OrderController {
                 List<DishCategory> dishCategories = dishCategoryService.getAllCategory();
                 session.setAttribute(CURRENT_TEMP_NEW_ORDER_ENTRIES, currentOrder.getDishes());
                 session.setAttribute(CURRENT_ORDER_ID, orderId);
+                session.setAttribute(CURRENT_GROUP_ORDER_ID, groupOrderId);
 
+                model.addAttribute("groupOrderId", groupOrderId);
                 model.addAttribute("dishes", dishes);
                 model.addAttribute("orderId", orderId);
                 model.addAttribute("dishCategories", dishCategories);

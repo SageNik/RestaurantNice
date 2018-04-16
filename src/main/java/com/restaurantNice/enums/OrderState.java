@@ -6,5 +6,6 @@ package com.restaurantNice.enums;
 public enum OrderState {
 
     SENT,
-    NOT_SENT
+    NOT_SENT,
+    FOR_GROUP_ORDER
 }

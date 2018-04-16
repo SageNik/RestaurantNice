@@ -29,8 +29,7 @@ public class JoinRequestServiceImpl implements JoinRequestService{
         JoinRequest joinRequest = joinRequestDao.findOneByParams(currentUser.getId(),group.getOwner_id(), group.getId());
         if(joinRequest == null) {
             joinRequest = new JoinRequest(currentUser, group);
-            if (joinRequestDao.send(joinRequest)) return true;
-            else return false;
+            return joinRequestDao.send(joinRequest);
         }else return true;
     }
 

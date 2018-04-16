@@ -52,9 +52,28 @@ CREATE TABLE IF NOT EXISTS `orders` (
   `order_state` int(5) DEFAULT NULL ,
   `sum` DOUBLE UNSIGNED DEFAULT 0.0,
   `user_id` int(20) unsigned NOT NULL,
+  `group_order_id` int(20) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   CONSTRAINT `fk_order_user` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+--
+-- Table structure for table `group_order`
+--
+
+-- DROP TABLE IF EXISTS `group_order`;
+CREATE TABLE IF NOT EXISTS `group_order` (
+  `id` int(20) unsigned NOT NULL AUTO_INCREMENT,
+  `order_state` int(5) DEFAULT NULL ,
+  `sum` DOUBLE UNSIGNED DEFAULT 0.0,
+  `owner_id` int(20) unsigned NOT NULL,
+  `group_id` int(20) unsigned NOT NULL,
+  PRIMARY KEY (`id`),
+  CONSTRAINT `fk_group_order_user` FOREIGN KEY (`owner_id`) REFERENCES `user`(`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `fk_group_order_group` FOREIGN KEY (`group_id`) REFERENCES `group`(`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 
 --
 -- Table structure for table `dish`

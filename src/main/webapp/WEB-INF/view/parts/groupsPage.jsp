@@ -25,8 +25,12 @@
                         <c:if test="${group.myStatus eq 'Owner'}">
                             <button class="button" id="editGroup" onclick="editGroup(${group.groupId})">Edit</button>
                             <button class="button" id="deleteGroup" onclick="deleteGroup(${group.groupId})">Delete</button>
+                            <button class="button" id="createGroupOrder" onclick="createGroupOrder(${group.groupId})">NewGroupOrder</button>
                         </c:if>
-                            <c:if test="${group.myStatus eq 'Member'}"><button class="button" id="quitGroup" onclick="quitGroup(${group.groupId})">Quit</button> </c:if>
+                            <c:if test="${group.myStatus eq 'Member'}">
+                                <button class="button" id="quitGroup" onclick="quitGroup(${group.groupId})">Quit</button>
+                                <button class="button" id="createGroupOrder" onclick="createGroupOrder(${group.groupId})">NewGroupOrder</button>
+                            </c:if>
 
                             <c:if test="${group.myStatus eq ''}"><button class="button" id="joinToGroup" onclick="joinToGroup(${group.groupId})">Join</button> </c:if>
                         </td>

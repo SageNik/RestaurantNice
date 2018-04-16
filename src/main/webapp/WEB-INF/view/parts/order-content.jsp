@@ -23,8 +23,10 @@
         <tr><td colspan="4"></td></tr>
         <tr>
             <td colspan="4">
-                <button class="in-submit" id="saveOrder" onclick="saveOrder()">Save</button>
+                <button class="in-submit" id="saveOrder" onclick="saveOrder(${groupOrderId})">Save</button>
+                <c:if test="${groupOrderId == null}">
                 <button class="in-submit" id="saveAndSendOrder" onclick="saveAndSendOrder()">Save&Send</button>
+                </c:if>
             </td>
         </tr>
     </table>

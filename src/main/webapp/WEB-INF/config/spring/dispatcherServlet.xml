@@ -21,9 +21,9 @@
          <property name="suffix" value=".jsp"/>
      </bean>
 
-    <!--<jdbc:initialize-database data-source="dataSource" enabled="true">-->
-        <!--<jdbc:script encoding="utf-8" location="classpath:migrations/V1__initial_version.sql" />-->
-    <!--</jdbc:initialize-database>-->
+    <jdbc:initialize-database data-source="dataSource" enabled="true">
+        <jdbc:script encoding="utf-8" location="classpath:migrations/V1__initial_version.sql" />
+    </jdbc:initialize-database>
 
     <jee:jndi-lookup id="dataSource"
                      jndi-name="jdbc/RestaurantNiceDB"

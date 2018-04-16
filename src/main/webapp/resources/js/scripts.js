@@ -8,6 +8,14 @@ $(document).ready(
 
 $(document).ready(
     function () {
+        $('#groupOrders').click(function () {
+            $('#content').load("groupOrders");
+            return false;
+        });
+    });
+
+$(document).ready(
+    function () {
         $('#menu').click(function () {
             $('#content').load("menu");
             return false;
@@ -89,9 +97,9 @@ function fromOrder(dish_id) {
     })
 }
 
-function saveOrder() {
+function saveOrder(groupOrder_id) {
     $('#saveOrder').prop("disabled",true);
-    $.post("saveOrder"
+    $.post("saveOrder", {groupOrderId: groupOrder_id}
     ).done(function (data) {
         alert("Order has been successfully saved");
         $('#content').html(data)
@@ -139,11 +147,11 @@ function sendOrder(order_id) {
     })
 }
 
-function deleteOrder(order_id) {
+function deleteOrder(order_id, groupOrder_id) {
     var conf = confirm("Do you really want to delete order with id:"+order_id+"?");
    if(conf) {
        $('#deleteOrder').prop("disabled", true);
-       $.post("deleteOrder", {orderId: order_id}
+       $.post("deleteOrder", {orderId: order_id, groupOrderId: groupOrder_id}
        ).done(function (data) {
            $('#content').html(data)
        }).fail(function () {
@@ -154,9 +162,9 @@ function deleteOrder(order_id) {
    }
 }
 
-function editOrder(order_id) {
+function editOrder(order_id, groupOrder_id) {
     $('#editOrder').prop("disabled", true);
-    $.post("editOrder",{orderId: order_id}
+    $.post("editOrder",{orderId: order_id, groupOrderId: groupOrder_id}
     ).done(function (data) {
         $('#content').html(data)
     }).fail(function () {
@@ -363,13 +371,23 @@ function acceptJoinRequest(joinRequest_id) {
         $('#acceptJoinRequest').prop("disabled", true);
         $.post("acceptJoinRequest",{joinRequestId: joinRequest_id}
         ).done(function (data) {
-            $('#content').html(data);
+             redirectAndLoad(function () {
+                 $('#content').html(data);
+             });
         }).fail(function () {
             alert("Join request hasn't been accepted");
         }).always(function () {
             $('#acceptJoinRequest').prop("disabled", false)
         })
     }
+}
+function redirectAndLoad(callback) {
+    toHome();
+    callback()
+}
+
+function toHome() {
+    window.location.href = "home";
 }
 
 function rejectJoinRequest(joinRequest_id) {
@@ -378,7 +396,9 @@ function rejectJoinRequest(joinRequest_id) {
         $('#rejectJoinRequest').prop("disabled", true);
         $.post("rejectJoinRequest",{joinRequestId: joinRequest_id}
         ).done(function (data) {
-            $('#content').html(data);
+            $.when(toHome).then(function () {
+                $('#content').html(data);
+            });
         }).fail(function () {
             alert("Join request hasn't been rejected");
         }).always(function () {
@@ -398,6 +418,73 @@ function quitGroup(group_id) {
             alert("The group hasn't been left");
         }).always(function () {
             $('#quitGroup').prop("disabled", false)
+        })
+    }
+}
+
+function createGroupOrder(groupId) {
+    $('#createGroupOrder').prop("disabled", true);
+    $.post("createGroupOrder",{groupId: groupId}
+    ).done(function (data) {
+        alert("The new group order has been successfully created in group with id="+groupId);
+        $('#content').html(data)
+    }).fail(function () {
+        alert("Sorry, new group order in group with id="+groupId+" hasn't been created")
+    }).always(function () {
+        $('#createGroupOrder').prop("disabled", false);
+    })
+}
+
+function showGroupOrder(groupOrderId, order_id) {
+    $('#showGroupOrder').prop("disabled", true);
+    $.get("showGroupOrder",{groupOrderId: groupOrderId, orderId: order_id}
+    ).done(function (data) {
+        $('#content').html(data);
+    }).fail(function () {
+        alert("Sorry, new group order in group with id="+groupOrderId+" couldn't been shown")
+    }).always(function () {
+        $('#showGroupOrder').prop("disabled", false);
+    })
+}
+
+function addOrder(groupOrderId) {
+    $('#addOrder').prop("disabled", true);
+    $.get("newOrder",{groupOrderId: groupOrderId}
+    ).done(function (data) {
+        $('#content').html(data)
+    }).fail(function () {
+        alert("Sorry, new order in group with id="+groupOrderId+" couldn't been added")
+    }).always(function () {
+        $('#addOrder').prop("disabled", false);
+    })
+}
+
+function deleteGroupOrder(groupOrder_id) {
+    var conf = confirm("Do you really want to delete group order with id="+groupOrder_id+"? This group order might contains some orders from you or another users that will be deleted.");
+    if(conf){
+        $('#deleteGroupOrder').prop("disabled", true);
+        $.post("deleteGroupOrder",{groupOrderId: groupOrder_id}
+        ).done(function (data) {
+            $('#content').html(data);
+        }).fail(function () {
+            alert("Group hasn't been deleted");
+        }).always(function () {
+            $('#deleteGroupOrder').prop("disabled", false)
+        })
+    }
+}
+
+function sendGroupOrder(groupOrder_id) {
+    var conf = confirm("Do you really want to send group order with id="+groupOrder_id+"?");
+    if(conf){
+        $('#sendGroupOrder').prop("disabled", true);
+        $.post("sendGroupOrder",{groupOrderId: groupOrder_id}
+        ).done(function (data) {
+            $('#content').html(data);
+        }).fail(function () {
+            alert("Group hasn't been deleted");
+        }).always(function () {
+            $('#sendGroupOrder').prop("disabled", false)
         })
     }
 }

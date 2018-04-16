@@ -6,7 +6,6 @@ import com.restaurantNice.entity.User;
 import com.restaurantNice.model.GroupViewModel;
 import com.restaurantNice.sevice.GroupService;
 import com.restaurantNice.sevice.JoinRequestService;
-import com.restaurantNice.sevice.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -56,7 +55,7 @@ public class GroupController implements Constants{
     public String editGroup ( @RequestParam("groupId")Long groupId, Model model){
         if(groupId != null){
 
-        Group group = groupService.getLightOneById(groupId);
+        Group group = groupService.getOneById(groupId);
         if(group != null) {
             model.addAttribute("group", group);
             model.addAttribute("title", "New group page");
@@ -110,7 +109,7 @@ public class GroupController implements Constants{
     public String joinToGroup (@RequestParam("groupId")Long groupId, HttpSession session){
         User currentUser = (User)session.getAttribute(CURRENT_SESSION_USER);
         if(groupId != null){
-            Group group = groupService.getLightOneById(groupId);
+            Group group = groupService.getOneById(groupId);
             if(group != null && joinRequestService.sendJoinRequest(group,currentUser)) {
                 LOGGER.info("Join request has been successfully sent to owner(id="+currentUser.getId()+") of group (id="+groupId+")");
                 return "redirect: groups";

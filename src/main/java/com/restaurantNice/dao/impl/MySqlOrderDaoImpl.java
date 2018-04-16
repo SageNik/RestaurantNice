@@ -3,6 +3,7 @@ package com.restaurantNice.dao.impl;
 import com.mysql.jdbc.Statement;
 import com.restaurantNice.dao.DishDao;
 import com.restaurantNice.dao.OrderDao;
+import com.restaurantNice.dao.UserDao;
 import com.restaurantNice.entity.Group;
 import com.restaurantNice.entity.Order;
 import com.restaurantNice.entity.User;
@@ -14,6 +15,7 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,15 +35,17 @@ public class MySqlOrderDaoImpl implements OrderDao {
     @Autowired
     private JdbcTemplate jdbcTemplate;
     @Autowired
+    private UserDao userDao;
+    @Autowired
     private DishDao dishDao;
     private static final Logger LOGGER = Logger.getLogger(MySqlOrderDaoImpl.class.getName());
 
-
+    @Transactional
     @Override
     public List<Order> findAllByUser(User user) {
 
-        String query = "SELECT * FROM orders WHERE user_id=?";
-        Object[] params = new Object[]{user.getId()};
+        String query = "SELECT * FROM orders WHERE user_id=? AND order_state IN(?,?)";
+        Object[] params = new Object[]{user.getId(),OrderState.NOT_SENT.ordinal(),OrderState.SENT.ordinal()};
         List<Map<String,Object>> orderMap = jdbcTemplate.queryForList(query,params);
         List<Order> orders = new ArrayList<>();
         mapToOrder(orders, orderMap);
@@ -53,8 +57,11 @@ public class MySqlOrderDaoImpl implements OrderDao {
             Order order = new Order();
             order.setId((Long) row.get("id"));
             order.setSum((Double) row.get("sum"));
-            order.setUser_id((Long) row.get("user_id"));
+            Long userId = (Long) row.get("user_id");
+            order.setUser(userDao.findOneById(userId));
+            order.setGroupOrder_id((Long) row.get("group_order_id"));
             OrderState state = Arrays.stream(OrderState.values()).filter(p->p.ordinal()== (Integer) row.get("order_state")).findFirst().get();
+            order.setDishes(dishDao.findAllByOrderId(order.getId()));
             order.setOrderState(state);
             orders.add(order);
         }
@@ -64,14 +71,17 @@ public class MySqlOrderDaoImpl implements OrderDao {
     public Long save(Order order) {
 
         String query = "INSERT INTO orders (order_state,user_id,sum) VALUES(?,?,?)";
+        if(order.getGroupOrder_id() != null) query = "INSERT INTO orders (order_state,user_id,sum,group_order_id) VALUES(?,?,?,?)";
         KeyHolder key = new GeneratedKeyHolder();
+        String finalQuery = query;
         jdbcTemplate.update(new PreparedStatementCreator() {
             @Override
             public PreparedStatement createPreparedStatement(Connection connection) throws SQLException {
-                final PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS);
+                final PreparedStatement preparedStatement = connection.prepareStatement(finalQuery, Statement.RETURN_GENERATED_KEYS);
                 preparedStatement.setInt(1,order.getOrderState().ordinal());
-                preparedStatement.setLong(2,order.getUser_id());
+                preparedStatement.setLong(2,order.getUser().getId());
                 preparedStatement.setDouble(3,order.getSum());
+                if(order.getGroupOrder_id() != null) preparedStatement.setLong(4,order.getGroupOrder_id());
                 return preparedStatement;
             }
         },key);
@@ -84,14 +94,18 @@ public class MySqlOrderDaoImpl implements OrderDao {
 
         String query = "SELECT * FROM orders WHERE id=?";
         Object[] params = new Object[]{orderId};
-        return jdbcTemplate.queryForObject(query,params, new BeanPropertyRowMapper<>(Order.class));
+        List<Map<String,Object>> orderMap = jdbcTemplate.queryForList(query,params);
+        List<Order> orders = new ArrayList<>();
+        mapToOrder(orders, orderMap);
+        if(orderMap.isEmpty())return null;
+        else return orders.get(0);
     }
 
     @Override
     public int update(Order currentOrder) {
 
         String query = "UPDATE orders SET order_state=?, sum=?, user_id=? WHERE id=?";
-        Object[] params = new Object[]{currentOrder.getOrderState().ordinal(),currentOrder.getCurrentSum(),currentOrder.getUser_id(),currentOrder.getId()};
+        Object[] params = new Object[]{currentOrder.getOrderState().ordinal(),currentOrder.getCurrentSum(),currentOrder.getUser().getId(),currentOrder.getId()};
         return jdbcTemplate.update(query,params);
     }
 
@@ -103,11 +117,11 @@ public class MySqlOrderDaoImpl implements OrderDao {
         return jdbcTemplate.update(query,params);
     }
 
+    @Transactional
     @Override
-    public List<Order> findAllByGroupId(Long groupId) {
-
-        String query = "SELECT orders.id,orders.sum,orders.user_id,orders.order_state FROM orders join order_group on orders.id = order_group.order_id WHERE group_id=?";
-        Object[] params = new Object[]{groupId};
+    public List<Order> findAllByGroupOrderId(Long groupOrderId) {
+        String query = "SELECT * FROM orders WHERE order_state=? AND group_order_id=?";
+        Object[] params = new Object[]{OrderState.FOR_GROUP_ORDER.ordinal(),groupOrderId};
         List<Map<String,Object>> orderMap = jdbcTemplate.queryForList(query,params);
         List<Order> orders = new ArrayList<>();
         mapToOrder(orders, orderMap);

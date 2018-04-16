@@ -5,7 +5,6 @@ import com.restaurantNice.dao.JoinRequestDao;
 import com.restaurantNice.dao.UserDao;
 import com.restaurantNice.entity.JoinRequest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -54,8 +53,11 @@ public class MySqlJoinRequestDaoImpl implements JoinRequestDao{
 
         String query = "SELECT * FROM join_request WHERE id=?";
         Object[] params = new Object[]{joinRequestId};
-        Map<String,Object> row = jdbcTemplate.queryForMap(query,params);
-        return getJoinRequest(row);
+        List<JoinRequest> requests = new ArrayList<>();
+        List<Map<String,Object>> reqMapRows = jdbcTemplate.queryForList(query,params);
+        mapToJoinRequest(requests, reqMapRows);
+        if(requests.isEmpty())return null;
+        else return requests.get(0);
     }
 
     @Override
@@ -71,8 +73,11 @@ public class MySqlJoinRequestDaoImpl implements JoinRequestDao{
     public JoinRequest findOneByParams(Long joinUserId, Long groupOwnerId, Long groupId) {
         String query = "SELECT * FROM join_request WHERE join_user_id=? AND owner_group_id=? AND group_id=?";
         Object[] params = new Object[]{joinUserId,groupOwnerId,groupId};
-        Map<String,Object> row = jdbcTemplate.queryForMap(query,params);
-        return getJoinRequest(row);
+        List<JoinRequest> requests = new ArrayList<>();
+        List<Map<String,Object>> reqMapRows = jdbcTemplate.queryForList(query,params);
+        mapToJoinRequest(requests, reqMapRows);
+        if(requests.isEmpty())return null;
+        else return requests.get(0);
     }
 
     private void mapToJoinRequest(List<JoinRequest> requests, List<Map<String, Object>> reqMapRows) {

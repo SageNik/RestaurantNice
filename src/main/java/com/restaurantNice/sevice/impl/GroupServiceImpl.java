@@ -1,6 +1,7 @@
 package com.restaurantNice.sevice.impl;
 
 import com.restaurantNice.dao.GroupDao;
+import com.restaurantNice.dao.GroupOrderDao;
 import com.restaurantNice.dao.OrderDao;
 import com.restaurantNice.dao.UserDao;
 import com.restaurantNice.entity.Group;
@@ -25,13 +26,15 @@ public class GroupServiceImpl implements GroupService{
     private OrderDao orderDao;
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private GroupOrderDao groupOrderDao;
 
     @Transactional
     @Override
     public List<Group> getAllGroups() {
         List<Group> groups = groupDao.findAll();
         for(Group group : groups){
-            group.setOrders(orderDao.findAllByGroupId(group.getId()));
+            group.setGroupOrders(groupOrderDao.findAllByGroupId(group.getId()));
             group.setUsers(userDao.findAllByGroupId(group.getId()));
         }
         return groups;
@@ -61,7 +64,7 @@ public class GroupServiceImpl implements GroupService{
     }
 
     @Override
-    public Group getLightOneById(Long groupId) {
+    public Group getOneById(Long groupId) {
         return groupDao.findOneById(groupId);
     }
 

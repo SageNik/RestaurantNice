@@ -23,6 +23,16 @@ header {align-content: center; text-align: center; height: 120px}
     border-color: #b4ccce #b3c0c8 #9eb9c2;
     border-radius: 12px;
     outline: 0}
+.button_dark{ padding: 0 18px;
+    height: 29px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #cde5ef;
+    background: darksalmon;
+    border: 2px solid;
+    border-color: white;
+    border-radius: 12px;
+    outline: 0}
 .login-text-field{
     margin: 5px;
     padding: 0 10px;

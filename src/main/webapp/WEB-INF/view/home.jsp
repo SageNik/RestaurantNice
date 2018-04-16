@@ -17,6 +17,7 @@
     </div>
     <ul >
         <li><a href="javascript:" id="orders"> Orders</a> </li>
+        <li><a href="javascript:" id="groupOrders"> Group orders</a> </li>
         <li><a href="javascript:" id="groups"> Groups</a> </li>
         <li><a href="javascript:" id="menu"> Menu</a> </li>
     </ul>

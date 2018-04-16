@@ -56,4 +56,13 @@ public interface OrderService {
      * @return True if order has been deleted or false if not.
      */
     boolean deleteOrderById(Long orderId);
+
+    /**
+     * Save or update new order for group order
+     * @param currentUser
+     * @param orderDishes
+     * @param orderId
+     * @return Id of order if order has been saved or updated or null if not.
+     */
+    Long saveOrUpdateOrderForGroupOrder(User currentUser,List<Dish> orderDishes,Long orderId,Long groupOrderId);
 }

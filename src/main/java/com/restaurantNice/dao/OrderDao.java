@@ -13,7 +13,7 @@ public interface OrderDao {
     /**
      * Find all orders by current user
      * @param user
-     * @return list of orders that belong particular user if they exist or an empty list if not.
+     * @return list of orders that belong particular user except orders for group orders if they exist or an empty list if not.
      */
     List<Order> findAllByUser(User user);
 
@@ -46,9 +46,9 @@ public interface OrderDao {
     int deleteOrderById(Long orderId);
 
     /**
-     * Find all orders by group id
-     * @param groupId
-     * @return list of orders that belong particular group if they exist or an empty list if not.
+     * Find all orders by group order id
+     * @param groupOrderId
+     * @return list of orders that belong particular group order if they exist or an empty list if not.
      */
-    List<Order> findAllByGroupId(Long groupId);
+    List<Order> findAllByGroupOrderId(Long groupOrderId);
 }

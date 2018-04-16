@@ -11,15 +11,17 @@ public class Order {
 
     private Long id;
     private OrderState orderState;
-    private Long user_id;
+    private User user;
     private List<Dish> dishes;
     private double sum;
+    private Long groupOrder_id;
 
-    public Order(OrderState orderState, Long user_id, List<Dish> dishes) {
+    public Order(OrderState orderState, User user, List<Dish> dishes, Long groupOrder_id) {
         this.orderState = orderState;
-        this.user_id = user_id;
+        this.user = user;
         this.dishes = dishes;
         this.sum = getCurrentSum();
+        this.groupOrder_id = groupOrder_id;
     }
 
     public Order() {}
@@ -40,12 +42,12 @@ public class Order {
         this.orderState = orderState;
     }
 
-    public Long getUser_id() {
-        return user_id;
+    public User getUser() {
+        return user;
     }
 
-    public void setUser_id(Long user_id) {
-        this.user_id = user_id;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public List<Dish> getDishes() {
@@ -64,6 +66,14 @@ public class Order {
         return sum;
     }
 
+    public Long getGroupOrder_id() {
+        return groupOrder_id;
+    }
+
+    public void setGroupOrder_id(Long groupOrder_id) {
+        this.groupOrder_id = groupOrder_id;
+    }
+
     public double getCurrentSum(){
         int sum = 0;
         for(Dish dish : dishes){
@@ -77,9 +87,10 @@ public class Order {
         return "Order{" +
                 "id=" + id +
                 ", orderState=" + orderState +
-                ", user_id=" + user_id +
+                ", user=" + user +
                 ", dishes=" + dishes +
                 ", sum=" + sum +
+                ", groupOrder_id=" + groupOrder_id +
                 '}';
     }
 }

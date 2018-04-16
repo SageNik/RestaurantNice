@@ -40,37 +40,38 @@ public class OrderServiceImpl implements OrderService {
     public boolean saveOrUpdateOrder(User currentUser, List<Dish> orderDishes, Long orderId) {
 
         if(orderId == null) {
-            Order order = new Order(OrderState.NOT_SENT, currentUser.getId(), orderDishes);
-            return save(orderDishes, order);
+            Order order = new Order(OrderState.NOT_SENT, currentUser, orderDishes, null);
+            if(save(orderDishes, order) != null) return true;
         }else{
-            return update(orderDishes, orderId, OrderState.NOT_SENT);
+            if(update(orderDishes, orderId, OrderState.NOT_SENT)!= null) return true;
         }
+        return false;
     }
 
-    private boolean update(List<Dish> orderDishes, Long orderId,OrderState orderState) {
+    private Long update(List<Dish> orderDishes, Long orderId,OrderState orderState) {
         Order currentOrder = getOrderById(orderId);
 
-        if(dishDao.deleteRelatedDishes(orderId,currentOrder.getDishes()) && dishDao.saveRelatedDishes(orderId,orderDishes) ){
+        if(dishDao.deleteRelatedDishes(orderId,currentOrder.getDishes()) && dishDao.saveRelatedDishes(orderId,orderDishes) ) {
             currentOrder = getOrderById(orderId);
             currentOrder.setSum(currentOrder.getCurrentSum());
             currentOrder.setOrderState(orderState);
-               if(orderDao.update(currentOrder) > 0) return true;
-               else return false;
-            }else return false;
+            if (orderDao.update(currentOrder) > 0) return orderId;
+        }
+        return null;
     }
 
-    private boolean save(List<Dish> orderDishes, Order order) {
+    private Long save(List<Dish> orderDishes, Order order) {
         try {
             Long savedOrderId = orderDao.save(order);
             if (savedOrderId != null) {
-                return dishDao.saveRelatedDishes(savedOrderId, orderDishes);
-            } else {
-                LOGGER.info("ERROR: order hasn't been saved correctly");
-                return false;
+                if(dishDao.saveRelatedDishes(savedOrderId, orderDishes));
+                return savedOrderId;
             }
+                LOGGER.info("ERROR: order hasn't been saved correctly");
+                return null;
         } catch (Exception e) {
             LOGGER.info("ERROR: order hasn't been saved");
-            return false;
+            return null;
         }
     }
 
@@ -79,11 +80,12 @@ public class OrderServiceImpl implements OrderService {
     public boolean saveOrUpdateAndSendOrder(User currentUser, List<Dish> orderDishes, Long orderId) {
 
         if(orderId == null) {
-            Order order = new Order(OrderState.SENT, currentUser.getId(), orderDishes);
-            return save(orderDishes, order);
+            Order order = new Order(OrderState.SENT, currentUser, orderDishes, null);
+            if(save(orderDishes, order) != null) return true;
         }else{
-            return update(orderDishes, orderId, OrderState.SENT);
+            if(update(orderDishes, orderId, OrderState.SENT)!= null) return true;
         }
+        return false;
     }
 
     @Override
@@ -115,6 +117,17 @@ public class OrderServiceImpl implements OrderService {
     public boolean deleteOrderById(Long orderId) {
         if(orderDao.deleteOrderById(orderId) > 0) return true;
         else return false;
+    }
+
+    @Transactional
+    @Override
+    public Long saveOrUpdateOrderForGroupOrder(User currentUser, List<Dish> orderDishes, Long orderId, Long groupOrderId) {
+        if(orderId == null) {
+            Order order = new Order(OrderState.FOR_GROUP_ORDER, currentUser, orderDishes, groupOrderId);
+            return save(orderDishes, order);
+        }else{
+            return update(orderDishes, orderId, OrderState.FOR_GROUP_ORDER);
+        }
     }
 
 }

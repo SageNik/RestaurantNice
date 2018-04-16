@@ -32,11 +32,11 @@ public interface GroupService {
     boolean saveOrUpdateGroup(Group group);
 
     /**
-     * Get light group (with out users and orders data) by id
+     * Get  group by id
      * @param groupId
-     * @return group (with out users and orders data) if it has been found or null if not.
+     * @return group if it has been found or null if not.
      */
-    Group getLightOneById(Long groupId);
+    Group getOneById(Long groupId);
 
     /**
      * Delete group by id from database

@@ -1,10 +1,11 @@
 package com.restaurantNice.dao.impl;
 
-import com.restaurantNice.controller.GroupController;
 import com.restaurantNice.dao.GroupDao;
+import com.restaurantNice.dao.GroupOrderDao;
+import com.restaurantNice.dao.OrderDao;
+import com.restaurantNice.dao.UserDao;
 import com.restaurantNice.entity.Group;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 
@@ -21,6 +22,10 @@ public class MySqlGroupDaoImpl implements GroupDao{
 
     @Autowired
     private JdbcTemplate jdbcTemplate;
+    @Autowired
+    private UserDao userDao;
+    @Autowired
+    private GroupOrderDao groupOrderDao;
     private static final Logger LOGGER = Logger.getLogger(MySqlGroupDaoImpl.class.getName());
 
     @Override
@@ -63,7 +68,11 @@ public class MySqlGroupDaoImpl implements GroupDao{
     public Group findOneById(Long groupId) {
         String query = "SELECT * FROM `group` WHERE id=?";
         Object[] params = new Object[]{groupId};
-        return jdbcTemplate.queryForObject(query,params,new BeanPropertyRowMapper<>(Group.class));
+        List<Group> groups = new ArrayList<>();
+        List<Map<String,Object>> groupMap = jdbcTemplate.queryForList(query,params);
+        mapToGroup(groups, groupMap);
+        if(groups.isEmpty())return  null;
+        else return groups.get(0);
     }
 
     @Override
@@ -94,6 +103,8 @@ public class MySqlGroupDaoImpl implements GroupDao{
             group.setName((String) row.get("name"));
             group.setDescription((String) row.get("description"));
             group.setOwner_id((Long) row.get("owner_id"));
+            group.setUsers(userDao.findAllByGroupId(group.getId()));
+            group.setGroupOrders(groupOrderDao.findAllByGroupId(group.getId()));
             groups.add(group);
         }
     }
